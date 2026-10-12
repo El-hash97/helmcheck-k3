@@ -145,4 +145,6 @@ def too_large(_):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Tanpa debug/reloader: reloader ikut memantau site-packages dan me-restart server
+    # saat Ultralytics di-import pada upload pertama, sehingga request terputus.
+    app.run()
