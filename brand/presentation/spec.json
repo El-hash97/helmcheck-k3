@@ -1,0 +1,56 @@
+{
+  "brand": "Helmcheck K3",
+  "tagline": "Pemeriksaan helm otomatis untuk area produksi",
+  "brief": "Alat web untuk petugas K3 pabrik: unggah foto area kerja, model YOLOv8 menandai pekerja yang tidak memakai helm. Logo harus tegas, industrial, dan tetap terbaca sebagai favicon 16 px.",
+  "adjectives": [
+    "waspada",
+    "tegas",
+    "andal",
+    "industrial"
+  ],
+  "criteria": "Berhasil kalau: tidak tampak seperti rambu K3 generik, terbaca di 16 px, bekerja dalam satu warna, dan serasi dengan palet rambu (biru wajib, merah, hijau) serta font Archivo di website.",
+  "mockups": [
+    "signage",
+    "sticker",
+    "badge",
+    "website",
+    "favicon-tab",
+    "app-icon"
+  ],
+  "nav": [
+    "Deteksi",
+    "Model",
+    "Training",
+    "Cara pakai"
+  ],
+  "brand_color": "#0B5CAD",
+  "greyscale": false,
+  "final": true,
+  "designer": "Helmcheck K3",
+  "concepts": [
+    {
+      "name": "Monogram H",
+      "symbol": "../logo/helmcheck-symbol.svg",
+      "lockup": "../logo/helmcheck-horizontal.svg",
+      "stacked": "../logo/helmcheck-stacked.svg",
+      "symbol_on_tile": "../logo/helmcheck-symbol-reversed.svg",
+      "stacked_on_tile": "../logo/helmcheck-stacked-reversed.svg",
+      "symbol_on_dark": "../logo/helmcheck-symbol-reversed.svg",
+      "lockup_on_dark": "../logo/helmcheck-horizontal-reversed.svg",
+      "stacked_on_dark": "../logo/helmcheck-stacked-reversed.svg",
+      "idea": "Palang huruf H menjadi pinggiran helm, kubahnya duduk di rongga atas: huruf H yang memakai helm.",
+      "rationale": [
+        "Satu huruf, satu ide: inisial produk sekaligus pekerja yang patuh K3",
+        "Tetap terbaca di 16 px berkat versi kecil yang ditebalkan",
+        "Bentuk lurus dan tegas seperti rambu, tanpa klise segitiga atau perisai",
+        "Satu warna biru rambu wajib (#0B5CAD), serasi dengan website"
+      ]
+    }
+  ],
+  "recommendation": "Monogram H dipilih: paling khas di kategori K3 dan paling kuat di ukuran kecil.",
+  "next_steps": [
+    "Pasang logo di header dan favicon website",
+    "Cetak stiker helm dan papan area untuk uji di lapangan",
+    "Lakukan penelusuran merek dagang sebelum dipakai komersial"
+  ]
+}
