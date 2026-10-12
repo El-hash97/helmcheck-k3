@@ -4,6 +4,7 @@ YOLOv8 Safety Helmet Detection
 
 | File | Isi |
 |---|---|
+| `train_colab.ipynb` | Training cepat di Colab dari `dataset.zip` (format YOLO) di Google Drive: perbaiki `data.yaml`, ubah kelas `head` → `no_helmet`, training, evaluasi, `metrics.json`, zip hasil untuk website. |
 | `belajar_yolo_helm.ipynb` | Tutorial bertahap (Bahasa Indonesia): dataset → konversi VOC ke YOLO → split → training → kurva → evaluasi + heatmap → inference → export untuk website. Siap dijalankan di Google Colab (T4 GPU). |
 | `brand/` | Logo Helmcheck K3 (monogram H berhelm): master SVG, lockup, varian warna, set ikon web, papan presentasi, dan panduan di `brand/GUIDELINES.md`. |
 | `app.py`, `templates/`, `static/` | Website Flask: deskripsi model, kurva training interaktif, heatmap confusion matrix dan sebaran posisi kepala, cara pakai, dan upload foto untuk menandai orang tanpa helm. |
