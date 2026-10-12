@@ -54,9 +54,11 @@ code.path { word-break: break-all; }
   background: var(--bg);
   border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); text-decoration: none;
-  font: 700 1.125rem var(--font); font-stretch: var(--wide); letter-spacing: -.01em; }
-.sign { width: 36px; height: 36px; flex: none; }
+.brand { display: flex; align-items: center; gap: .35rem; color: var(--ink); text-decoration: none;
+  font: 700 1.1875rem var(--font); font-stretch: var(--wide); letter-spacing: -.012em; }
+.brand b { color: var(--sign); font-weight: inherit; }
+/* Proporsi lockup horizontal (brand/logo): kotak simbol = 2,5 × cap height, jarak = 40/256 kotak */
+.sign { width: 34px; height: 34px; flex: none; margin-left: -4px; }
 .top nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
 .top nav a { color: var(--ink); text-decoration: none; font-size: .9375rem; font-weight: 500; padding: .2rem 0; border-bottom: 2px solid transparent; }
 .top nav a:hover { border-color: var(--sign); }

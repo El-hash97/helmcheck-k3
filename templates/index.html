@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" href="{{ url_for('static', filename='icons/favicon.ico') }}" sizes="48x48">
+<link rel="icon" href="{{ url_for('static', filename='icons/favicon.svg') }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<link rel="manifest" href="{{ url_for('static', filename='icons/site.webmanifest') }}">
+<meta name="theme-color" content="#0B5CAD">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
@@ -19,12 +24,10 @@
 
 <header class="top">
   <a class="brand" href="#deteksi">
-    <svg class="sign" viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="23" fill="var(--sign)"/>
-      <path d="M11 30h26v3H11zM13 29c0-7 4.5-12 11-12s11 5 11 12z" fill="#fff"/>
-      <rect x="22.5" y="14" width="3" height="5" rx="1" fill="#fff"/>
+    <svg class="sign" viewBox="0 0 256 256" aria-hidden="true">
+      <path fill="var(--sign)" d="M46 28H90V224H46Z M166 28H210V224H166Z M18 134H238V160H18Z M90 134A38 38 0 0 1 166 134Z"/>
     </svg>
-    <span>Helmcheck K3</span>
+    <span>Helmcheck <b>K3</b></span>
   </a>
   <nav aria-label="Bagian halaman">
     <a href="#deteksi">Deteksi</a>
