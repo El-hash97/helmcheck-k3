@@ -1,6 +1,20 @@
-YOLOv8 Safety Helmet Detection
+# Helmcheck K3
 
-## Website Helmcheck K3 + notebook belajar
+Deteksi pekerja tanpa helm di area pabrik dengan YOLOv8. Tersedia website Flask untuk upload foto, kurva training, dan heatmap evaluasi, serta notebook untuk belajar dan melatih model sendiri.
+
+## Coba cepat (pakai model yang sudah dilatih)
+
+1. Unduh [`helmet_run.zip`](https://github.com/El-hash97/helmcheck-k3/releases/download/v1.0/helmet_run.zip) dari [Release v1.0](https://github.com/El-hash97/helmcheck-k3/releases/tag/v1.0), lalu ekstrak ke folder `runs/` di project ini, sehingga ada `runs/helmet/weights/best.pt`.
+2. Pasang dependensi dan jalankan website:
+   ```bash
+   pip install -r requirements.txt
+   python app.py
+   ```
+3. Buka http://127.0.0.1:5000, lalu unggah foto area kerja.
+
+Model v1.0: YOLOv8n, 50 epoch, 640 px, 4000 gambar latih. Hasil pada data validasi: precision 92,7%, recall 91,0%, mAP50 95,4%. Pada 500 gambar test: mAP50 91,7%.
+
+## Isi repo
 
 | File | Isi |
 |---|---|
@@ -9,13 +23,18 @@ YOLOv8 Safety Helmet Detection
 | `brand/` | Logo Helmcheck K3 (monogram H berhelm): master SVG, lockup, varian warna, set ikon web, papan presentasi, dan panduan di `brand/GUIDELINES.md`. |
 | `app.py`, `templates/`, `static/` | Website Flask: deskripsi model, kurva training interaktif, heatmap confusion matrix dan sebaran posisi kepala, cara pakai, dan upload foto untuk menandai orang tanpa helm. |
 
-Langkah singkat:
+Melatih model sendiri:
 
-1. Jalankan `belajar_yolo_helm.ipynb` di Colab. Sel terakhir mengunduh `helmet_run.zip`.
+1. Jalankan `train_colab.ipynb` (dari `dataset.zip` di Google Drive) atau `belajar_yolo_helm.ipynb` (unduh dari Kaggle) di Colab. Sel terakhir mengunduh `helmet_run.zip`.
 2. Ekstrak zip ke folder project sehingga ada `runs/helmet/weights/best.pt`.
 3. `pip install -r requirements.txt`, lalu `python app.py`, dan buka http://127.0.0.1:5000
 
 Folder hasil training lain bisa dipakai lewat environment variable `HELMET_RUN=path/ke/run`.
+
+**Kredit:**
+- Dikembangkan dari [addeligero/YOLOV8-safety-helmet-detection](https://github.com/addeligero/YOLOV8-safety-helmet-detection). README asli ada di bawah.
+- Dataset: [Hard Hat Workers](https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection) (Kaggle).
+- Font: Archivo (SIL OFL).
 
 ---
 
