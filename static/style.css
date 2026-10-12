@@ -1,40 +1,32 @@
-/* Helmcheck K3: palet dari rambu keselamatan ISO 7010 (biru wajib, merah larangan, hijau aman). */
+/* Helmcheck K3: palet dari rambu keselamatan ISO 7010 (biru wajib, merah larangan, hijau aman) di atas kertas putih. */
 :root {
-  --bg: #e9ece8;          /* lantai beton */
+  --bg: #ffffff;
+  --surface: #f5f6f4;     /* sumur abu muda untuk area hasil & panel */
   --panel: #ffffff;
-  --ink: #17212b;
-  --muted: #5a6672;
-  --line: #c8cec9;
-  --sign: #0f5da8;        /* biru rambu "wajib pakai helm" */
-  --safe: #1f7a4a;
-  --stop: #c8102e;
+  --ink: #141b22;
+  --muted: #55606b;
+  --line: #e2e5e1;
+  --line-strong: #c9cec8;
+  --sign: #0b5cad;        /* biru rambu "wajib pakai helm" */
+  --sign-tint: #eaf1f9;
+  --safe: #1c7a47;
+  --stop: #c4122f;
   --hazard: #f2b705;
-  --heat-lo: 233 236 232;
-  --heat-hi: 15 93 168;
+  --heat-lo: 245 246 244;
+  --heat-hi: 11 92 173;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "Barlow", system-ui, sans-serif;
   color-scheme: light;
+  accent-color: var(--sign);
+  scrollbar-color: var(--line-strong) var(--bg);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #131a21; --panel: #1b242e; --ink: #e5eaee; --muted: #9aa6b1; --line: #2f3b47;
-    --sign: #4b93dc; --safe: #3fae74; --stop: #ef4d5f;
-    --heat-lo: 27 36 46; --heat-hi: 92 160 230;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #131a21; --panel: #1b242e; --ink: #e5eaee; --muted: #9aa6b1; --line: #2f3b47;
-  --sign: #4b93dc; --safe: #3fae74; --stop: #ef4d5f;
-  --heat-lo: 27 36 46; --heat-hi: 92 160 230;
-  color-scheme: dark;
-}
+::selection { background: var(--sign-tint); color: var(--ink); }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
-  margin: 0; background: var(--bg); color: var(--ink);
+  margin: 0; background: var(--bg); color: var(--ink); caret-color: var(--sign);
   font: 400 17px/1.55 var(--body); font-variant-numeric: tabular-nums;
 }
 h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0 0 .5em; }
@@ -52,7 +44,7 @@ code.path { word-break: break-all; }
   position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
   padding: .7rem max(16px, calc((100vw - 1200px) / 2));
-  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+  background: var(--bg);
   border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); text-decoration: none;
@@ -74,7 +66,7 @@ main > section { padding: 4rem max(16px, calc((100vw - 1200px) / 2)); }
 .upload { display: grid; gap: 1.25rem; margin-top: 2rem; }
 .drop {
   position: relative; display: grid; gap: .2rem; place-items: center; text-align: center;
-  padding: 2.2rem 1rem; background: var(--panel); border: 2px dashed var(--line); border-radius: 10px; cursor: pointer;
+  padding: 2.2rem 1rem; background: var(--surface); border: 2px dashed var(--line); border-radius: 10px; cursor: pointer;
 }
 .drop:hover, .drop.over { border-color: var(--sign); }
 .drop:focus-within { outline: 3px solid var(--sign); outline-offset: 2px; }
@@ -101,7 +93,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 .plate strong { font: 700 clamp(3.5rem, 8vw, 5.5rem)/0.9 var(--display); min-width: 1ch; }
 .plate span { font: 600 1.35rem/1.15 var(--display); }
-.plate.idle { background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+.plate.idle { background: var(--surface); color: var(--muted); }
 .plate.safe { background: var(--safe); }
 .plate.stop {
   background: var(--stop);
@@ -119,7 +111,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .det-list li.safe { background: var(--safe); }
 .det-list li.stop { background: var(--stop); }
 
-.empty { background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--sign); border-radius: 10px; padding: 1.6rem; }
+.empty { background: var(--sign-tint); border: 1px solid color-mix(in srgb, var(--sign) 25%, transparent); border-radius: 10px; padding: 1.6rem; }
 .empty h2, .empty h3 { font-size: 1.7rem; margin-top: 0; }
 .empty.wide { max-width: 68ch; }
 
