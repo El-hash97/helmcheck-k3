@@ -14,8 +14,11 @@
   --hazard: #f2b705;
   --heat-lo: 245 246 244;
   --heat-hi: 11 92 173;
-  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --body: "Barlow", system-ui, sans-serif;
+  /* Satu keluarga, Archivo variabel: peran dibedakan lewat lebar (wdth 62–125) dan berat. */
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --wide: 112%;       /* judul: lebar, seperti huruf rambu */
+  --narrow: 86%;      /* angka & data: rapat, tabular */
   color-scheme: light;
   accent-color: var(--sign);
   scrollbar-color: var(--line-strong) var(--bg);
@@ -27,17 +30,18 @@ html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0; background: var(--bg); color: var(--ink); caret-color: var(--sign);
-  font: 400 17px/1.55 var(--body); font-variant-numeric: tabular-nums;
+  font: 400 1.0625rem/1.6 var(--font); font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0 0 .5em; }
-h2 { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 700; }
-h3 { font-size: 1.45rem; font-weight: 600; margin-top: 2.2rem; }
+h1, h2, h3 { font-family: var(--font); margin: 0 0 .5em; text-wrap: balance; }
+h2 { font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.25rem); font-weight: 700; font-stretch: var(--wide); line-height: 1.1; letter-spacing: -.015em; }
+h3 { font-size: 1.1875rem; font-weight: 650; line-height: 1.3; letter-spacing: -.005em; margin-top: 2.5rem; }
 p { margin: 0 0 1em; }
 a { color: var(--sign); text-underline-offset: 3px; }
-code { font-size: .88em; background: color-mix(in srgb, var(--line) 45%, transparent); padding: .1em .35em; border-radius: 4px; }
+code { font-family: var(--mono); font-size: .86em; background: color-mix(in srgb, var(--line) 45%, transparent); padding: .1em .35em; border-radius: 4px; }
 code.path { word-break: break-all; }
 :focus-visible { outline: 3px solid var(--sign); outline-offset: 2px; }
-.hint { color: var(--muted); font-size: .92rem; margin: .5rem 0 0; }
+.hint { color: var(--muted); font-size: .875rem; line-height: 1.5; margin: .5rem 0 0; }
 
 /* ---------- header ---------- */
 .top {
@@ -48,10 +52,10 @@ code.path { word-break: break-all; }
   border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); text-decoration: none;
-  font: 700 1.35rem var(--display); }
+  font: 700 1.125rem var(--font); font-stretch: var(--wide); letter-spacing: -.01em; }
 .sign { width: 36px; height: 36px; flex: none; }
 .top nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
-.top nav a { color: var(--ink); text-decoration: none; font-weight: 500; padding: .2rem 0; border-bottom: 2px solid transparent; }
+.top nav a { color: var(--ink); text-decoration: none; font-size: .9375rem; font-weight: 500; padding: .2rem 0; border-bottom: 2px solid transparent; }
 .top nav a:hover { border-color: var(--sign); }
 
 main > section { padding: 4rem max(16px, calc((100vw - 1200px) / 2)); }
@@ -60,8 +64,8 @@ main > section { padding: 4rem max(16px, calc((100vw - 1200px) / 2)); }
 
 /* ---------- deteksi ---------- */
 .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
-.hero h1 { font-size: clamp(2.8rem, 6.5vw, 5rem); font-weight: 700; letter-spacing: -.01em; text-wrap: balance; }
-.lead { font-size: 1.15rem; max-width: 40ch; }
+.hero h1 { font-size: clamp(2.5rem, 1.6rem + 3.2vw, 3.75rem); font-weight: 750; font-stretch: var(--wide); line-height: 1.02; letter-spacing: -.025em; }
+.lead { font-size: 1.1875rem; line-height: 1.55; max-width: 42ch; color: var(--ink); }
 
 .upload { display: grid; gap: 1.25rem; margin-top: 2rem; }
 .drop {
@@ -79,7 +83,7 @@ main > section { padding: 4rem max(16px, calc((100vw - 1200px) / 2)); }
 .conf input { width: 100%; accent-color: var(--sign); }
 
 button[type="submit"] {
-  font: 600 1.15rem var(--display); letter-spacing: .02em;
+  font: 650 1rem var(--font); font-stretch: 104%;
   padding: .85rem 1.5rem; border: 0; border-radius: 8px; cursor: pointer;
   background: var(--sign); color: #fff;
 }
@@ -91,8 +95,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   display: flex; align-items: center; gap: 1.25rem;
   padding: 1.1rem 1.4rem; border-radius: 10px; color: #fff; background: var(--muted);
 }
-.plate strong { font: 700 clamp(3.5rem, 8vw, 5.5rem)/0.9 var(--display); min-width: 1ch; }
-.plate span { font: 600 1.35rem/1.15 var(--display); }
+.plate strong { font: 800 clamp(3.5rem, 2.6rem + 3vw, 5rem)/.9 var(--font); font-stretch: 75%; min-width: 1ch; }
+.plate span { font: 650 1.25rem/1.2 var(--font); font-stretch: var(--wide); letter-spacing: -.01em; }
 .plate.idle { background: var(--surface); color: var(--muted); }
 .plate.safe { background: var(--safe); }
 .plate.stop {
@@ -101,7 +105,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   border-image: repeating-linear-gradient(-45deg, var(--hazard) 0 14px, #1a1a1a 14px 28px) 10;
 }
 .plate.error { background: var(--panel); color: var(--stop); border: 2px solid var(--stop); }
-.plate.error span { font: 500 1rem/1.4 var(--body); }
+.plate.error span { font: 500 1rem/1.45 var(--font); font-stretch: 100%; }
 
 .result { margin: 1rem 0 0; }
 .result img { display: block; width: 100%; height: auto; border-radius: 8px; background: var(--panel); }
@@ -112,7 +116,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .det-list li.stop { background: var(--stop); }
 
 .empty { background: var(--sign-tint); border: 1px solid color-mix(in srgb, var(--sign) 25%, transparent); border-radius: 10px; padding: 1.6rem; }
-.empty h2, .empty h3 { font-size: 1.7rem; margin-top: 0; }
+.empty h2, .empty h3 { font-size: 1.375rem; font-stretch: var(--wide); margin-top: 0; }
 .empty.wide { max-width: 68ch; }
 
 /* ---------- model ---------- */
@@ -129,7 +133,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .scores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 3rem; border-top: 1px solid var(--line); }
 .scores > div { display: grid; padding: 1.2rem 1rem 0 0; }
 .scores > div + div { padding-left: 1rem; border-left: 1px solid var(--line); }
-.score { font: 700 clamp(2.4rem, 5vw, 3.6rem)/1 var(--display); }
+.score { font: 700 clamp(2.25rem, 1.8rem + 2vw, 3rem)/1 var(--font); font-stretch: var(--narrow); }
 .score small { font-size: .5em; color: var(--muted); margin-left: .1em; }
 .score-name { font-weight: 600; margin-top: .3rem; }
 .score-help { color: var(--muted); font-size: .9rem; }
@@ -143,13 +147,13 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 /* ---------- training ---------- */
 .charts, .heatmaps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 .chart-card, .heat-card { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem; min-width: 0; }
-.chart-card figcaption, .heat-card > figcaption { font: 600 1.2rem var(--display); }
+.chart-card figcaption, .heat-card > figcaption { font: 650 1.0625rem/1.3 var(--font); }
 .chart-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .75rem; }
 .chart-box { position: relative; height: 280px; }
 .heat-card img, .gallery img { display: block; width: 100%; height: auto; border-radius: 6px; }
 
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.seg button { font: 500 .9rem var(--body); padding: .3rem .8rem; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.seg button { font: 500 .875rem var(--font); padding: .3rem .8rem; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--sign); color: #fff; }
 
@@ -183,7 +187,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .steps li::before {
   content: counter(s); position: absolute; left: 0; top: -.1rem;
   width: 1.85rem; height: 1.85rem; border-radius: 50%; display: grid; place-items: center;
-  background: var(--sign); color: #fff; font: 700 1.05rem var(--display);
+  background: var(--sign); color: #fff; font: 700 .9375rem var(--font); font-stretch: var(--narrow);
 }
 .limits { padding-left: 1.2rem; margin: 0; }
 .limits li { margin-bottom: .75rem; }
