@@ -1,0 +1,6 @@
+<svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>Helmcheck K3</title>
+  
+  <!-- Grid 256: tiang H 44 lebar (x 46–90, 166–210), pinggiran helm 26 tinggi menonjol 28 di tiap sisi,
+       kubah r38 tepat di antara tiang. Dinaikkan 2 unit ke pusat optis. -->
+  <path fill="#ffffff" d="M46 28H90V224H46Z M166 28H210V224H166Z M18 134H238V160H18Z M90 134A38 38 0 0 1 166 134Z"/>
+</svg>

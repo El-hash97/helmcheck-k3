@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><title>Helmcheck K3</title><rect width="256" height="256" rx="57.6" fill="#0B5CAD"/><g transform="translate(43.39 40.83) scale(0.661)" fill="#ffffff">
+  
+  <!-- Versi tebal untuk ≤32 px: tiang 54, pinggiran 36, kubah r34 -->
+  <path fill="#ffffff" d="M40 24H94V232H40Z M162 24H216V232H162Z M8 128H248V164H8Z M94 128A34 34 0 0 1 162 128Z"/>
+</g></svg>
