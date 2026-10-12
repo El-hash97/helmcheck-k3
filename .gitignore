@@ -28,3 +28,8 @@ Thumbs.db
 
 # Cache
 *.cache
+
+# Notebook belajar_yolo_helm.ipynb
+archive/
+helmet_data.yaml
+helmet_run.zip

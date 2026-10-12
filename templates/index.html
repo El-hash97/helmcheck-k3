@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helmcheck K3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+{% set m = metrics.overall if metrics else None %}
+{% if not m and results %}
+  {% set m = {"precision": results["metrics/precision(B)"][-1], "recall": results["metrics/recall(B)"][-1],
+              "map50": results["metrics/mAP50(B)"][-1], "map50_95": results["metrics/mAP50-95(B)"][-1]} %}
+{% endif %}
+
+<header class="top">
+  <a class="brand" href="#deteksi">
+    <svg class="sign" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="23" fill="var(--sign)"/>
+      <path d="M11 30h26v3H11zM13 29c0-7 4.5-12 11-12s11 5 11 12z" fill="#fff"/>
+      <rect x="22.5" y="14" width="3" height="5" rx="1" fill="#fff"/>
+    </svg>
+    <span>Helmcheck K3</span>
+  </a>
+  <nav aria-label="Bagian halaman">
+    <a href="#deteksi">Deteksi</a>
+    <a href="#model">Model</a>
+    <a href="#training">Training</a>
+    <a href="#cara-pakai">Cara pakai</a>
+  </nav>
+</header>
+
+<main>
+<!-- ============ DETEKSI ============ -->
+<section id="deteksi" class="hero">
+  <div class="hero-text">
+    <h1>Siapa yang belum pakai helm?</h1>
+    <p class="lead">Unggah foto area kerja. Model YOLOv8 menandai setiap kepala: hijau kalau memakai helm, merah kalau tidak.</p>
+
+    <form id="detect-form" class="upload">
+      <label class="drop" id="drop">
+        <input type="file" name="image" id="file" accept="image/jpeg,image/png,image/bmp,image/webp" required>
+        <span class="drop-title" id="drop-title">Pilih atau seret foto ke sini</span>
+        <span class="drop-hint">JPG, PNG, BMP, atau WEBP, maksimal 10 MB</span>
+      </label>
+
+      <div class="conf">
+        <label for="conf">Ambang keyakinan <output id="conf-out">0.40</output></label>
+        <input type="range" id="conf" name="conf" min="0.1" max="0.9" step="0.05" value="0.4">
+        <p class="hint">Turunkan supaya lebih sedikit pelanggaran yang lolos. Naikkan supaya alarm palsu berkurang.</p>
+      </div>
+
+      <button type="submit" id="submit" {% if not has_model %}disabled{% endif %}>Periksa foto</button>
+    </form>
+  </div>
+
+  <div class="stage" aria-live="polite">
+    {% if has_model %}
+    <div class="plate idle" id="plate">
+      <strong id="plate-num">—</strong>
+      <span id="plate-text">Belum ada foto yang diperiksa</span>
+    </div>
+    <figure class="result" id="result" hidden>
+      <img id="result-img" alt="Foto dengan kotak deteksi helm">
+      <figcaption id="result-meta"></figcaption>
+    </figure>
+    <ul class="det-list" id="det-list"></ul>
+    {% else %}
+    <div class="empty">
+      <h2>Model belum dipasang</h2>
+      <p>Website ini butuh file <code>best.pt</code> hasil training. Jalankan notebook <code>belajar_yolo_helm.ipynb</code> di Google Colab, lalu ekstrak <code>helmet_run.zip</code> ke:</p>
+      <p><code class="path">{{ run_dir }}</code></p>
+      <p><a href="#cara-pakai">Lihat langkah lengkapnya</a></p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============ MODEL ============ -->
+<section id="model" class="band">
+  <h2>Tentang model</h2>
+  <div class="model-grid">
+    <div class="prose">
+      <p>Di area produksi, kepala adalah bagian tubuh yang paling sering terkena benda jatuh dan benturan dengan mesin. Pemeriksaan helm biasanya dilakukan manual oleh petugas K3. Model ini membantu pemeriksaan itu dari foto atau rekaman CCTV, sehingga petugas cukup meninjau temuan yang ditandai merah.</p>
+      <p>Model dilatih mengenali <strong>kepala</strong>, lalu memutuskan apakah kepala itu memakai helm. Karena yang dideteksi kepala, bukan seluruh tubuh, orang yang sebagian tertutup mesin atau rak tetap bisa diperiksa selama kepalanya terlihat.</p>
+      <p>Arsitekturnya YOLOv8 nano dari Ultralytics, hasil <em>transfer learning</em> dari bobot COCO. Ukurannya sekitar 6 MB dan cukup cepat untuk CPU biasa.</p>
+    </div>
+
+    <dl class="spec">
+      <div><dt>Dataset</dt><dd><a href="https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection" rel="noopener">Hard Hat Workers</a>, 5000 gambar</dd></div>
+      <div><dt>Kelas</dt><dd><span class="chip safe">helmet</span> <span class="chip stop">no_helmet</span></dd></div>
+      <div><dt>Arsitektur</dt><dd>{{ metrics.config.base_model if metrics else "yolov8n.pt" }}</dd></div>
+      {% if metrics %}
+      <div><dt>Data latih / validasi</dt><dd>{{ metrics.counts.train }} / {{ metrics.counts.val }} gambar</dd></div>
+      <div><dt>Epoch, ukuran input</dt><dd>{{ metrics.config.epochs }} epoch, {{ metrics.config.imgsz }} px</dd></div>
+      {% elif results %}
+      <div><dt>Epoch</dt><dd>{{ results.epoch|length }}</dd></div>
+      {% endif %}
+    </dl>
+  </div>
+
+  {% if m %}
+  <div class="scores">
+    <div><span class="score">{{ "%.1f"|format(m.precision * 100) }}<small>%</small></span><span class="score-name">Precision</span><span class="score-help">Dari yang ditandai, berapa yang benar</span></div>
+    <div><span class="score">{{ "%.1f"|format(m.recall * 100) }}<small>%</small></span><span class="score-name">Recall</span><span class="score-help">Dari yang ada, berapa yang tertangkap</span></div>
+    <div><span class="score">{{ "%.1f"|format(m.map50 * 100) }}<small>%</small></span><span class="score-name">mAP50</span><span class="score-help">Ketepatan deteksi pada IoU 0.5</span></div>
+    <div><span class="score">{{ "%.1f"|format(m.map50_95 * 100) }}<small>%</small></span><span class="score-name">mAP50-95</span><span class="score-help">Sama, dengan syarat posisi kotak lebih ketat</span></div>
+  </div>
+  {% endif %}
+
+  {% if metrics and metrics.per_class %}
+  <table class="per-class">
+    <caption>Hasil per kelas pada data validasi</caption>
+    <thead><tr><th scope="col">Kelas</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">mAP50</th><th scope="col">mAP50-95</th></tr></thead>
+    <tbody>
+    {% for c in metrics.per_class %}
+      <tr><th scope="row"><span class="chip {{ 'stop' if c.name == 'no_helmet' else 'safe' }}">{{ c.name }}</span></th>
+        <td>{{ "%.3f"|format(c.precision) }}</td><td>{{ "%.3f"|format(c.recall) }}</td>
+        <td>{{ "%.3f"|format(c.map50) }}</td><td>{{ "%.3f"|format(c.map50_95) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+<!-- ============ TRAINING ============ -->
+<section id="training" class="band">
+  <h2>Data dan kurva training</h2>
+  {% if results %}
+  <p class="section-lead">Diambil dari <code>results.csv</code>, satu titik per epoch. Loss yang turun di data train dan validasi berarti model belajar tanpa sekadar menghafal.</p>
+
+  <div class="charts">
+    <figure class="chart-card">
+      <div class="chart-head">
+        <figcaption>Loss per epoch</figcaption>
+        <div class="seg" role="group" aria-label="Jenis loss">
+          <button type="button" data-loss="box_loss" aria-pressed="true">Kotak</button>
+          <button type="button" data-loss="cls_loss" aria-pressed="false">Kelas</button>
+          <button type="button" data-loss="dfl_loss" aria-pressed="false">DFL</button>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="loss-chart" aria-label="Grafik loss train dan validasi per epoch"></canvas></div>
+      <p class="hint" id="loss-help">Kotak: seberapa meleset posisi dan ukuran kotak prediksi.</p>
+    </figure>
+
+    <figure class="chart-card">
+      <div class="chart-head"><figcaption>Metrik validasi per epoch</figcaption></div>
+      <div class="chart-box"><canvas id="metric-chart" aria-label="Grafik precision, recall, dan mAP per epoch"></canvas></div>
+      <p class="hint">Garis yang naik lalu mendatar berarti model sudah mendekati batas kemampuannya untuk data ini.</p>
+    </figure>
+  </div>
+
+  <h3>Heatmap</h3>
+  <div class="heatmaps">
+    <figure class="heat-card">
+      <figcaption>Confusion matrix</figcaption>
+      {% if metrics %}
+      <div class="cm-wrap">
+        <span class="axis-y">Prediksi</span>
+        <div class="cm" id="cm"></div>
+        <span class="axis-x">Label asli</span>
+      </div>
+      <p class="hint">{% if metrics.config.conf_cm %}Dihitung pada ambang keyakinan {{ metrics.config.conf_cm }}. {% endif %}Setiap kolom dijumlah 100%. Diagonal = objek yang dikenali dengan benar. Baris <em>background</em> = kepala yang terlewat; kolom <em>background</em> = alarm palsu.</p>
+      {% elif images.confusion %}
+      <img src="{{ url_for('run_file', name=images.confusion) }}" alt="Confusion matrix ternormalisasi" loading="lazy">
+      {% endif %}
+    </figure>
+
+    <figure class="heat-card">
+      <figcaption>Sebaran posisi kepala di data latih</figcaption>
+      {% if metrics %}
+      <div class="lh" id="lh" role="img" aria-label="Heatmap posisi kepala pada gambar latih"></div>
+      <div class="lh-scale"><span>sedikit</span><i></i><span>banyak</span></div>
+      <p class="hint">Tiap petak = satu area gambar. Area yang jarang berisi kepala di data latih biasanya juga lebih lemah dideteksi. Perhatikan ini saat menentukan posisi kamera.</p>
+      {% elif images.labels %}
+      <img src="{{ url_for('run_file', name=images.labels) }}" alt="Distribusi label dari Ultralytics" loading="lazy">
+      {% endif %}
+    </figure>
+  </div>
+
+  {% set gallery = [("pr", "Kurva precision-recall.", "Makin luas area di bawah kurva, makin baik. Luas area ini adalah mAP50."),
+                    ("f1", "Kurva F1 terhadap ambang keyakinan.", "Puncak kurva menunjukkan ambang keyakinan yang paling seimbang."),
+                    ("labels", "Statistik label.", "Jumlah objek per kelas serta sebaran posisi dan ukuran kotak."),
+                    ("val_labels", "Label asli data validasi.", "Kotak hasil anotasi manusia."),
+                    ("val_pred", "Prediksi model pada gambar yang sama.", "Bandingkan dengan label asli di sebelahnya.")] %}
+  <h3>Plot dari Ultralytics</h3>
+  <div class="gallery">
+    {% for key, title, help in gallery if images[key] %}
+    <figure>
+      <a href="{{ url_for('run_file', name=images[key]) }}" target="_blank" rel="noopener">
+        <img src="{{ url_for('run_file', name=images[key]) }}" alt="{{ title }}" loading="lazy">
+      </a>
+      <figcaption><strong>{{ title }}</strong> {{ help }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty wide">
+    <h3>Belum ada hasil training</h3>
+    <p>Kurva dan heatmap muncul setelah folder hasil training ada di <code class="path">{{ run_dir }}</code>. Ikuti langkah di bawah.</p>
+  </div>
+  {% endif %}
+</section>
+
+<!-- ============ CARA PAKAI ============ -->
+<section id="cara-pakai" class="band">
+  <h2>Cara pakai</h2>
+  <div class="howto">
+    <div>
+      <h3>Menyiapkan model</h3>
+      <ol class="steps">
+        <li>Buka <code>belajar_yolo_helm.ipynb</code> di Google Colab dan pilih runtime <strong>T4 GPU</strong>.</li>
+        <li>Jalankan semua sel. Training 30 epoch butuh sekitar 30–45 menit.</li>
+        <li>Sel terakhir mengunduh <code>helmet_run.zip</code>. Ekstrak ke folder project sehingga ada <code>runs/helmet/weights/best.pt</code>.</li>
+        <li>Jalankan <code>pip install -r requirements.txt</code>, lalu <code>python app.py</code>, dan buka <code>http://127.0.0.1:5000</code>.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Memeriksa foto</h3>
+      <ol class="steps">
+        <li>Ambil foto dari kamera CCTV atau ponsel. Usahakan kepala pekerja terlihat jelas dan tidak membelakangi cahaya.</li>
+        <li>Unggah di bagian <a href="#deteksi">Deteksi</a>, lalu tekan <strong>Periksa foto</strong>.</li>
+        <li>Tinjau setiap kotak merah. Model bisa salah, jadi keputusan tindak lanjut tetap di tangan petugas K3.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Batasan yang perlu diketahui</h3>
+      <ul class="limits">
+        <li>Data latih kebanyakan foto proyek konstruksi. Akurasi di pabrikmu bisa lebih rendah sampai model dilatih ulang dengan foto dari lokasi sendiri.</li>
+        <li>Topi kain, hijab, atau rambut tertutup bisa terbaca sebagai helm, atau sebaliknya. Periksa ulang kasus seperti ini.</li>
+        <li>Kepala yang sangat kecil di foto (orang jauh dari kamera) lebih sering terlewat.</li>
+        <li>Model hanya memeriksa helm, belum rompi, sepatu, atau kacamata safety.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <p>Dikembangkan dari <a href="https://github.com/addeligero/YOLOV8-safety-helmet-detection" rel="noopener">addeligero/YOLOV8-safety-helmet-detection</a>. Dataset Hard Hat Workers (Kaggle). Model Ultralytics YOLOv8.</p>
+</footer>
+
+<script>
+const RESULTS = {{ results|tojson }};
+const METRICS = {{ metrics|tojson }};
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- deteksi ---------- */
+const form = document.getElementById("detect-form");
+const fileIn = document.getElementById("file");
+const conf = document.getElementById("conf");
+const confOut = document.getElementById("conf-out");
+const drop = document.getElementById("drop");
+conf.addEventListener("input", () => (confOut.textContent = Number(conf.value).toFixed(2)));
+fileIn.addEventListener("change", () => {
+  document.getElementById("drop-title").textContent = fileIn.files[0] ? fileIn.files[0].name : "Pilih atau seret foto ke sini";
+});
+["dragover", "dragenter"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((e) => drop.addEventListener(e, () => drop.classList.remove("over")));
+drop.addEventListener("drop", (ev) => {
+  ev.preventDefault();
+  if (ev.dataTransfer.files.length) { fileIn.files = ev.dataTransfer.files; fileIn.dispatchEvent(new Event("change")); }
+});
+
+form.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const plate = document.getElementById("plate");
+  if (!fileIn.files.length || !plate) return;
+  const btn = document.getElementById("submit");
+  btn.disabled = true; btn.textContent = "Memeriksa…";
+  try {
+    const res = await fetch("/api/detect", { method: "POST", body: new FormData(form) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Pemeriksaan gagal.");
+    showResult(data);
+  } catch (err) {
+    plate.className = "plate error";
+    document.getElementById("plate-num").textContent = "!";
+    document.getElementById("plate-text").textContent = err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Periksa foto";
+  }
+});
+
+function showResult(d) {
+  const plate = document.getElementById("plate");
+  const total = d.helmet + d.no_helmet;
+  plate.className = "plate " + (d.no_helmet ? "stop" : total ? "safe" : "idle");
+  document.getElementById("plate-num").textContent = d.no_helmet || (total ? "✓" : "0");
+  document.getElementById("plate-text").textContent = d.no_helmet
+    ? `orang tanpa helm, ${d.helmet} memakai helm`
+    : total ? `Semua ${d.helmet} orang memakai helm` : "Tidak ada kepala yang terdeteksi. Coba turunkan ambang keyakinan atau pakai foto yang lebih dekat.";
+  document.getElementById("result").hidden = false;
+  document.getElementById("result-img").src = d.image;
+  document.getElementById("result-meta").textContent = `${total} kepala terdeteksi, ambang ${d.conf.toFixed(2)}, ${d.speed_ms} ms`;
+  document.getElementById("det-list").replaceChildren(...d.detections.map((x) => {
+    const li = document.createElement("li");
+    li.className = x.label === "no_helmet" ? "stop" : "safe";
+    const a = document.createElement("span"), b = document.createElement("span");
+    a.textContent = x.label === "no_helmet" ? "Tanpa helm" : "Helm";
+    b.textContent = (x.conf * 100).toFixed(0) + "%";
+    li.append(a, b);
+    return li;
+  }));
+}
+
+/* ---------- grafik ---------- */
+if (RESULTS) {
+  Chart.defaults.font.family = "Barlow, system-ui, sans-serif";
+  Chart.defaults.color = css("--muted");
+  Chart.defaults.borderColor = css("--line");
+  const ep = RESULTS.epoch.map((e) => Math.round(e));
+  const base = {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { position: "bottom", labels: { boxWidth: 14, boxHeight: 2 } } },
+    scales: { x: { title: { display: true, text: "epoch" }, grid: { display: false } } },
+  };
+  const line = (label, data, color, dash) => ({ label, data, borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: ep.length < 15 ? 3 : 0, pointHoverRadius: 4, tension: 0.25, borderDash: dash || [] });
+
+  const help = { box_loss: "Kotak: seberapa meleset posisi dan ukuran kotak prediksi.",
+                 cls_loss: "Kelas: seberapa sering model salah membedakan kepala ber-helm dan tanpa helm.",
+                 dfl_loss: "DFL (distribution focal loss): seberapa tajam batas tepi kotak." };
+  const lossChart = new Chart(document.getElementById("loss-chart"), {
+    type: "line", options: base,
+    data: { labels: ep, datasets: [line("Train", [], css("--sign")), line("Validasi", [], css("--stop"), [6, 4])] },
+  });
+  const setLoss = (k) => {
+    lossChart.data.datasets[0].data = RESULTS["train/" + k];
+    lossChart.data.datasets[1].data = RESULTS["val/" + k];
+    lossChart.update();
+    document.getElementById("loss-help").textContent = help[k];
+    document.querySelectorAll("[data-loss]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.loss === k));
+  };
+  document.querySelectorAll("[data-loss]").forEach((b) => b.addEventListener("click", () => setLoss(b.dataset.loss)));
+  setLoss("box_loss");
+
+  new Chart(document.getElementById("metric-chart"), {
+    type: "line",
+    options: { ...base, scales: { ...base.scales, y: { min: 0, max: 1, ticks: { callback: (v) => Math.round(v * 100) + "%" } } },
+      plugins: { ...base.plugins, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${(c.parsed.y * 100).toFixed(1)}%` } } } },
+    data: { labels: ep, datasets: [
+      line("Precision", RESULTS["metrics/precision(B)"], css("--sign")),
+      line("Recall", RESULTS["metrics/recall(B)"], css("--stop")),
+      line("mAP50", RESULTS["metrics/mAP50(B)"], css("--safe")),
+      line("mAP50-95", RESULTS["metrics/mAP50-95(B)"], css("--muted"), [6, 4]),
+    ] },
+  });
+}
+
+/* ---------- heatmap ---------- */
+if (METRICS) {
+  const { labels, matrix } = METRICS.confusion;
+  const n = labels.length;
+  const colSum = labels.map((_, j) => matrix.reduce((s, row) => s + row[j], 0) || 1);
+  const cm = document.getElementById("cm");
+  cm.style.gridTemplateColumns = `auto repeat(${n}, minmax(0, 1fr))`;
+  const cell = (cls, text) => { const d = document.createElement("div"); d.className = cls; d.textContent = text; cm.append(d); return d; };
+  cell("cm-corner", "");
+  labels.forEach((l) => cell("cm-head", l));
+  matrix.forEach((row, i) => {
+    cell("cm-head row", labels[i]);
+    row.forEach((v, j) => {
+      const p = v / colSum[j];
+      const c = cell("cm-cell" + (p > 0.55 ? " dark" : ""), (p * 100).toFixed(0) + "%");
+      c.style.setProperty("--a", p.toFixed(3));
+      c.title = `Prediksi ${labels[i]}, asli ${labels[j]}: ${v} objek (${(p * 100).toFixed(1)}% dari kolom)`;
+    });
+  });
+
+  const grid = METRICS.label_heatmap;
+  const max = Math.max(1, ...grid.flat());
+  const lh = document.getElementById("lh");
+  lh.style.gridTemplateColumns = `repeat(${grid[0].length}, 1fr)`;
+  grid.forEach((row, y) => row.forEach((v, x) => {
+    const d = document.createElement("div");
+    d.style.setProperty("--a", Math.sqrt(v / max).toFixed(3));  // akar: area sepi tetap terlihat
+    d.title = `Kolom ${x + 1}, baris ${y + 1}: ${v} kepala`;
+    lh.append(d);
+  }));
+}
+</script>
+</body>
+</html>

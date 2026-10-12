@@ -1,6 +1,6 @@
 import os
+import random
 import shutil
-from sklearn.model_selection import train_test_split
 
 IMG_DIR = "dataset/images"
 LBL_DIR = "dataset/yolo_labels"
@@ -17,7 +17,9 @@ os.makedirs(val_lbl_dir, exist_ok=True)
 
 images = [f for f in os.listdir(IMG_DIR) if f.endswith(('.jpg', '.png'))]
 
-train_imgs, val_imgs = train_test_split(images, test_size=0.2, random_state=42)
+random.Random(42).shuffle(images)
+n_val = int(len(images) * 0.2)
+val_imgs, train_imgs = images[:n_val], images[n_val:]
 
 def copy_split(files, split_img_dir, split_lbl_dir):
     for img in files:

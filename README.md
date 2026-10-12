@@ -1,5 +1,22 @@
 YOLOv8 Safety Helmet Detection
 
+## Website Helmcheck K3 + notebook belajar
+
+| File | Isi |
+|---|---|
+| `belajar_yolo_helm.ipynb` | Tutorial bertahap (Bahasa Indonesia): dataset → konversi VOC ke YOLO → split → training → kurva → evaluasi + heatmap → inference → export untuk website. Siap dijalankan di Google Colab (T4 GPU). |
+| `app.py`, `templates/`, `static/` | Website Flask: deskripsi model, kurva training interaktif, heatmap confusion matrix dan sebaran posisi kepala, cara pakai, dan upload foto untuk menandai orang tanpa helm. |
+
+Langkah singkat:
+
+1. Jalankan `belajar_yolo_helm.ipynb` di Colab. Sel terakhir mengunduh `helmet_run.zip`.
+2. Ekstrak zip ke folder project sehingga ada `runs/helmet/weights/best.pt`.
+3. `pip install -r requirements.txt`, lalu `python app.py`, dan buka http://127.0.0.1:5000
+
+Folder hasil training lain bisa dipakai lewat environment variable `HELMET_RUN=path/ke/run`.
+
+---
+
 This project implements a Safety Helmet Detection System using YOLOv8.
 The model is trained to detect whether construction workers are wearing a helmet or not using a dataset originally sourced from Kaggle (Hard Hat Workers Dataset).
 
