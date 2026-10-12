@@ -10,7 +10,7 @@ while True:
     if not ret:
         break
 
-    results = model(frame)
+    results = model(frame, conf=0.4, verbose=False)
     annotated = results[0].plot()
 
     cv2.imshow("Helmet Detection - YOLOv8", annotated)
