@@ -33,3 +33,7 @@ Thumbs.db
 archive/
 helmet_data.yaml
 helmet_run.zip
+
+# Render sementara logo
+brand/renders/
+brand/concepts/renders/
