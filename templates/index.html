@@ -38,7 +38,7 @@
 <!-- ============ DETEKSI ============ -->
 <section id="deteksi" class="hero">
   <div class="hero-text">
-    <h1>Siapa yang belum pakai helm?</h1>
+    <h1>Siapa yang belum pakai&nbsp;helm?</h1>
     <p class="lead">Unggah foto area kerja. Model YOLOv8 menandai setiap kepala: hijau kalau memakai helm, merah kalau tidak.</p>
 
     <form id="detect-form" class="upload">
@@ -60,15 +60,19 @@
 
   <div class="stage" aria-live="polite">
     {% if has_model %}
-    <div class="plate idle" id="plate">
-      <strong id="plate-num">—</strong>
-      <span id="plate-text">Belum ada foto yang diperiksa</span>
+    <div class="plate" id="plate" hidden>
+      <strong id="plate-num"></strong>
+      <span id="plate-text"></span>
     </div>
-    <figure class="result" id="result" hidden>
-      <img id="result-img" alt="Foto dengan kotak deteksi helm">
-      <figcaption id="result-meta"></figcaption>
+    <figure class="viewer" id="viewer">
+      <div class="viewer-empty" id="viewer-empty">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 14V8a2 2 0 0 1 2-2h6M34 6h6a2 2 0 0 1 2 2v6M42 34v6a2 2 0 0 1-2 2h-6M14 42H8a2 2 0 0 1-2-2v-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M15 27c0-5.5 4-9.5 9-9.5s9 4 9 9.5zM13 28h22v2.5H13z" fill="currentColor"/></svg>
+        <p>Hasil pemeriksaan muncul di sini.</p>
+        <p class="hint">Kotak merah menandai kepala tanpa helm, kotak hijau menandai kepala yang memakai helm.</p>
+      </div>
     </figure>
-    <ul class="det-list" id="det-list"></ul>
+    <p class="viewer-meta" id="result-meta"></p>
+    <ul class="det-list" id="det-list" aria-label="Daftar deteksi"></ul>
     {% else %}
     <div class="empty">
       <h2>Model belum dipasang</h2>
@@ -82,7 +86,9 @@
 
 <!-- ============ MODEL ============ -->
 <section id="model" class="band">
-  <h2>Tentang model</h2>
+  <header class="section-head">
+    <h2>Tentang model</h2>
+  </header>
   <div class="model-grid">
     <div class="prose">
       <p>Di area produksi, kepala adalah bagian tubuh yang paling sering terkena benda jatuh dan benturan dengan mesin. Pemeriksaan helm biasanya dilakukan manual oleh petugas K3. Model ini membantu pemeriksaan itu dari foto atau rekaman CCTV, sehingga petugas cukup meninjau temuan yang ditandai merah.</p>
@@ -104,34 +110,38 @@
   </div>
 
   {% if m %}
-  <div class="scores">
-    <div><span class="score">{{ "%.1f"|format(m.precision * 100) }}<small>%</small></span><span class="score-name">Precision</span><span class="score-help">Dari yang ditandai, berapa yang benar</span></div>
-    <div><span class="score">{{ "%.1f"|format(m.recall * 100) }}<small>%</small></span><span class="score-name">Recall</span><span class="score-help">Dari yang ada, berapa yang tertangkap</span></div>
-    <div><span class="score">{{ "%.1f"|format(m.map50 * 100) }}<small>%</small></span><span class="score-name">mAP50</span><span class="score-help">Ketepatan deteksi pada IoU 0.5</span></div>
-    <div><span class="score">{{ "%.1f"|format(m.map50_95 * 100) }}<small>%</small></span><span class="score-name">mAP50-95</span><span class="score-help">Sama, dengan syarat posisi kotak lebih ketat</span></div>
+  <div class="eval">
+    <table class="eval-table">
+      <caption><h3>Hasil evaluasi pada data validasi</h3></caption>
+      <thead><tr><th scope="col">Kelas</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">mAP50</th><th scope="col">mAP50-95</th></tr></thead>
+      <tbody>
+        <tr class="all"><th scope="row">Semua kelas</th>
+          <td>{{ "%.1f"|format(m.precision * 100) }}%</td><td>{{ "%.1f"|format(m.recall * 100) }}%</td>
+          <td>{{ "%.1f"|format(m.map50 * 100) }}%</td><td>{{ "%.1f"|format(m.map50_95 * 100) }}%</td></tr>
+        {% for c in (metrics.per_class if metrics else []) %}
+        <tr><th scope="row"><span class="chip {{ 'stop' if c.name == 'no_helmet' else 'safe' }}">{{ c.name }}</span></th>
+          <td>{{ "%.1f"|format(c.precision * 100) }}%</td><td>{{ "%.1f"|format(c.recall * 100) }}%</td>
+          <td>{{ "%.1f"|format(c.map50 * 100) }}%</td><td>{{ "%.1f"|format(c.map50_95 * 100) }}%</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <dl class="glossary">
+      <div><dt>Precision</dt><dd>Dari semua kepala yang ditandai, berapa persen yang benar. Rendah berarti banyak alarm palsu.</dd></div>
+      <div><dt>Recall</dt><dd>Dari semua kepala yang ada di foto, berapa persen yang tertangkap. Untuk K3, recall <em>no_helmet</em> yang paling penting.</dd></div>
+      <div><dt>mAP50</dt><dd>Ketepatan deteksi kalau kotak prediksi menutupi minimal 50% kotak asli.</dd></div>
+      <div><dt>mAP50-95</dt><dd>Sama, tetapi dirata-rata untuk syarat tumpang tindih 50% sampai 95%. Lebih ketat soal posisi kotak.</dd></div>
+    </dl>
   </div>
-  {% endif %}
-
-  {% if metrics and metrics.per_class %}
-  <table class="per-class">
-    <caption>Hasil per kelas pada data validasi</caption>
-    <thead><tr><th scope="col">Kelas</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">mAP50</th><th scope="col">mAP50-95</th></tr></thead>
-    <tbody>
-    {% for c in metrics.per_class %}
-      <tr><th scope="row"><span class="chip {{ 'stop' if c.name == 'no_helmet' else 'safe' }}">{{ c.name }}</span></th>
-        <td>{{ "%.3f"|format(c.precision) }}</td><td>{{ "%.3f"|format(c.recall) }}</td>
-        <td>{{ "%.3f"|format(c.map50) }}</td><td>{{ "%.3f"|format(c.map50_95) }}</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
   {% endif %}
 </section>
 
 <!-- ============ TRAINING ============ -->
 <section id="training" class="band">
-  <h2>Data dan kurva training</h2>
+  <header class="section-head">
+    <h2>Data dan kurva training</h2>
+    {% if results %}<p>Diambil dari <code>results.csv</code>, satu titik per epoch. Loss yang turun di data train dan validasi berarti model belajar tanpa sekadar menghafal.</p>{% endif %}
+  </header>
   {% if results %}
-  <p class="section-lead">Diambil dari <code>results.csv</code>, satu titik per epoch. Loss yang turun di data train dan validasi berarti model belajar tanpa sekadar menghafal.</p>
 
   <div class="charts">
     <figure class="chart-card">
@@ -208,7 +218,9 @@
 
 <!-- ============ CARA PAKAI ============ -->
 <section id="cara-pakai" class="band">
-  <h2>Cara pakai</h2>
+  <header class="section-head">
+    <h2>Cara pakai</h2>
+  </header>
   <div class="howto">
     <div>
       <h3>Menyiapkan model</h3>
@@ -278,6 +290,7 @@ form.addEventListener("submit", async (ev) => {
     if (!res.ok) throw new Error(data.error || "Pemeriksaan gagal.");
     showResult(data);
   } catch (err) {
+    plate.hidden = false;
     plate.className = "plate error";
     document.getElementById("plate-num").textContent = "!";
     document.getElementById("plate-text").textContent = err.message;
@@ -289,13 +302,16 @@ form.addEventListener("submit", async (ev) => {
 function showResult(d) {
   const plate = document.getElementById("plate");
   const total = d.helmet + d.no_helmet;
-  plate.className = "plate " + (d.no_helmet ? "stop" : total ? "safe" : "idle");
+  plate.hidden = false;
+  plate.className = "plate " + (d.no_helmet ? "stop" : total ? "safe" : "none");
   document.getElementById("plate-num").textContent = d.no_helmet || (total ? "✓" : "0");
   document.getElementById("plate-text").textContent = d.no_helmet
     ? `orang tanpa helm, ${d.helmet} memakai helm`
     : total ? `Semua ${d.helmet} orang memakai helm` : "Tidak ada kepala yang terdeteksi. Coba turunkan ambang keyakinan atau pakai foto yang lebih dekat.";
-  document.getElementById("result").hidden = false;
-  document.getElementById("result-img").src = d.image;
+  const img = new Image();
+  img.alt = `Foto yang diperiksa: ${d.no_helmet} kepala tanpa helm, ${d.helmet} memakai helm`;
+  img.src = d.image;
+  document.getElementById("viewer").replaceChildren(img);
   document.getElementById("result-meta").textContent = `${total} kepala terdeteksi, ambang ${d.conf.toFixed(2)}, ${d.speed_ms} ms`;
   document.getElementById("det-list").replaceChildren(...d.detections.map((x) => {
     const li = document.createElement("li");
